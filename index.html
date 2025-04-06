@@ -45,14 +45,16 @@
     <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
     <script>
         $(document).ready(function () {
-            // Initialize LIFF
+            // LIFFの初期化
             const liffId = "2007212344-YAm5jN8V";
             initializeLiff(liffId);
 
-            // Set today's date in MM/YY format as default for the 日付 input
+            // 現在の日付（2025年4月6日等）をMM/YY形式で表示
             var today = new Date();
-            var mm = String(today.getMonth() + 1).padStart(2, '0'); // getMonth() is zero-indexed
-            var yy = String(today.getFullYear()).slice(-2);
+            var month = today.getMonth() + 1; // getMonth()は0始まりなので+1
+            // 月が一桁の場合は先頭に"0"を付与
+            var mm = month < 10 ? '0' + month : month;
+            var yy = today.getFullYear().toString().slice(-2);
             $('input[name="udetate"]').val(mm + '/' + yy);
         });
 
@@ -62,7 +64,7 @@
             }).then(() => {
                 initializeApp();
             }).catch((err) => {
-                console.log('LIFF Initialization failed ', err);
+                console.log('LIFFの初期化に失敗しました: ', err);
             });
         }
 
@@ -73,7 +75,7 @@
             }]).then(function () {
                 liff.closeWindow();
             }).catch(function (error) {
-                window.alert('Failed to send message ' + error);
+                window.alert('メッセージ送信に失敗しました: ' + error);
             });
         }
         
@@ -82,12 +84,13 @@
 
         $(function () {
             $('form').submit(function () {
-                const name    = $('input[name="name"]').val();
+                // select要素から値を取得するように修正
+                const name    = $('select[name="name"]').val();
                 const udetate = $('input[name="udetate"]').val();
                 const fukkin  = $('input[name="fukkin"]').val();
                 const haikin  = $('select[name="haikin"]').val();
                 
-                // Construct message to send
+                // 送信するメッセージの作成
                 const msg = `${name}\n${udetate}\n${fukkin}\n${haikin}`;
                 sendText(msg);
 
