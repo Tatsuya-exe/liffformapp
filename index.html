@@ -20,11 +20,12 @@
         </div>
         <p class="mt-3">日付</p>
         <div>
-            <input class="form-control w-100 mt-1" name="udetate" required>
+            <!-- type属性を明示的に指定 -->
+            <input type="text" class="form-control w-100 mt-1" name="udetate" required>
         </div>
         <p class="mt-3">勉強時間(H)</p>
         <div>
-            <input class="form-control w-100 mt-1" name="fukkin" required>
+            <input type="text" class="form-control w-100 mt-1" name="fukkin" required>
         </div>
         <p class="mt-3">ジャンル</p>
         <div>
@@ -42,4 +43,64 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" crossorigin="anonymous"></script>
-    <script charset="utf-8"
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
+    <script>
+        $(document).ready(function () {
+            // 現在の日付をMM/DD形式で設定（例：2025年4月6日なら "04/06"）
+            var today = new Date();
+            var month = today.getMonth() + 1; // 月は0始まりのため+1
+            var mm = month < 10 ? '0' + month : month;
+            var dd = today.getDate() < 10 ? '0' + today.getDate() : today.getDate();
+            $('input[name="udetate"]').val(mm + '/' + dd);
+
+            // LIFFの初期化（initializeApp()内で上書き等がないか確認してください）
+            const liffId = "2007212344-YAm5jN8V";
+            initializeLiff(liffId);
+        });
+
+        function initializeLiff(liffId) {
+            liff.init({
+                liffId: liffId
+            }).then(() => {
+                // LIFF初期化後の処理（initializeApp()が存在する場合のみ）
+                if (typeof initializeApp === "function") {
+                    initializeApp();
+                }
+            }).catch((err) => {
+                console.log('LIFFの初期化に失敗しました: ', err);
+            });
+        }
+
+        function sendText(text) {
+            liff.sendMessages([{
+                'type': 'text',
+                'text': text
+            }]).then(function () {
+                liff.closeWindow();
+            }).catch(function (error) {
+                window.alert('メッセージ送信に失敗しました: ' + error);
+            });
+        }
+        
+        const params = (new URL(document.location)).searchParams;
+        const key = params.get('key');
+
+        $(function () {
+            $('form').submit(function () {
+                // select要素から値を取得するように修正
+                const name    = $('select[name="name"]').val();
+                const udetate = $('input[name="udetate"]').val();
+                const fukkin  = $('input[name="fukkin"]').val();
+                const haikin  = $('select[name="haikin"]').val();
+                
+                // 送信するメッセージの作成
+                const msg = `${name}\n${udetate}\n${fukkin}\n${haikin}`;
+                sendText(msg);
+
+                return false;
+            });
+        });
+    </script>
+
+</body>
+</html>
